@@ -2,6 +2,7 @@ package com.lecture197.todolist;
 
 import com.lecture197.todolist.datamodel.TodoData;
 import com.lecture197.todolist.datamodel.TodoItem;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -89,7 +90,10 @@ public class Controller {
                 return cell ;
             }
         });
-        this.itemListView.setItems(TodoData.getInstance().getTodoItems());
+        SortedList<TodoItem> sortedList = new SortedList<TodoItem>(TodoData.getInstance().getTodoItems(), (o1, o2) -> {
+            return o1.getDeadLine().compareTo(o2.getDeadLine());
+        });
+        this.itemListView.setItems(sortedList);
         this.itemListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         // Select first item bv default
         this.itemListView.getSelectionModel().selectFirst();
