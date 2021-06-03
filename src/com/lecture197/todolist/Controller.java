@@ -5,7 +5,6 @@ import com.lecture197.todolist.datamodel.TodoItem;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -14,13 +13,8 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class Controller {
@@ -33,23 +27,16 @@ public class Controller {
     @FXML
     private Label deadlineLabel;
     @FXML
-    private ContextMenu listViewContectMenu;
+    private ContextMenu listViewContextMenu;
 
+    // Create app data file to save list if doesn't exist
     public void initialize() throws  Exception{
-        this.listViewContectMenu = new ContextMenu();
-        MenuItem deleteMenuItem =  new MenuItem("Delete");
-        deleteMenuItem.setOnAction(e -> {
-            TodoItem item = this.itemListView.getSelectionModel().getSelectedItem();
-            deleteItem(item);
-        });
-        listViewContectMenu.getItems().add(deleteMenuItem);
-
         if(TodoData.isDataFileExist()) {
             TodoData.getInstance().loadTodoItems();
         }
 
-        // Listener for itemListview
-        this.itemListView.getSelectionModel().selectedItemProperty().addListener((observable, todoItem, newTodoItem) -> {
+        // Set listener for itemListview to update TextArea and deadline Label when an item is selected
+        this.itemListView.getSelectionModel().selectedItemProperty().addListener((observable, oldTodoItem, newTodoItem) -> {
             if (newTodoItem != null) {
                 TodoItem selectedItem = itemListView.getSelectionModel().getSelectedItem();
                 DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
@@ -57,6 +44,14 @@ public class Controller {
                 deadlineLabel.setText(df.format(selectedItem.getDeadLine()));
             }
         });
+        // Set ContextMenu for itemListView and add 'Delete' option
+        this.listViewContextMenu = new ContextMenu();
+        MenuItem deleteMenuItem =  new MenuItem("Delete");
+        deleteMenuItem.setOnAction(e -> {
+            TodoItem item = this.itemListView.getSelectionModel().getSelectedItem();
+            deleteItem(item);
+        });
+        listViewContextMenu.getItems().add(deleteMenuItem);
         // Set behavior of each cells in itemListView
         this.itemListView.setCellFactory(new Callback<ListView<TodoItem>, ListCell<TodoItem>>() {
             @Override
@@ -84,13 +79,13 @@ public class Controller {
                     if (isNowEmpty) {
                         cell.setContextMenu(null);
                     } else {
-                        cell.setContextMenu(listViewContectMenu);
+                        cell.setContextMenu(listViewContextMenu);
                     }
                 });
                 return cell ;
             }
         });
-        SortedList<TodoItem> sortedList = new SortedList<TodoItem>(TodoData.getInstance().getTodoItems(), (o1, o2) -> {
+        SortedList<TodoItem> sortedList = new SortedList<>(TodoData.getInstance().getTodoItems(), (o1, o2) -> {
             return o1.getDeadLine().compareTo(o2.getDeadLine());
         });
         this.itemListView.setItems(sortedList);
