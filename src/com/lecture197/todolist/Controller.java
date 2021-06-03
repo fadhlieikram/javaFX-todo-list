@@ -35,34 +35,6 @@ public class Controller {
     private ContextMenu listViewContectMenu;
 
     public void initialize() throws  Exception{
-//        List<TodoItem> todoItems = new ArrayList<>();
-//        TodoItem item;
-//        String filename = "TodoFile.todo";
-//        Path filePath = Paths.get(filename);
-//
-//
-//        item = new TodoItem("Meeting at 2:30", "Meeting with business and product owner for project X.",
-//                LocalDate.of(2021, Month.MAY, 31));
-//        todoItems.add(item);
-//        item = new TodoItem("Check pull request", "Check daily pull request for repo XY.",
-//                LocalDate.of(2021, Month.MAY, 31));
-//        todoItems.add(item);
-//        item = new TodoItem("Pay bills", "Pay this month Netflix and gym subscription.",
-//                LocalDate.of(2021, Month.MAY, 31));
-//        todoItems.add(item);
-//        item = new TodoItem("Pick up laundry", "Pick up laundry from ZZZZ.",
-//                LocalDate.of(2021, Month.JUNE, 1));
-//        todoItems.add(item);
-//
-//        if(!TodoData.isDataFileExist()) {
-//            System.out.println("initiate tododata");
-//            TodoData.getInstance().setTodoItems(todoItems);
-//            this.itemListView.getItems().setAll(todoItems);
-//        } else {
-//            System.out.println("init load");
-//            TodoData.getInstance().loadTodoItems();
-//            this.itemListView.getItems().setAll(TodoData.getInstance().getTodoItems());
-//        }
         this.listViewContectMenu = new ContextMenu();
         MenuItem deleteMenuItem =  new MenuItem("Delete");
         deleteMenuItem.setOnAction(e -> {
@@ -70,13 +42,12 @@ public class Controller {
             deleteItem(item);
         });
         listViewContectMenu.getItems().add(deleteMenuItem);
-        //this.itemListView.setContextMenu(listViewContectMenu);
 
         if(TodoData.isDataFileExist()) {
             TodoData.getInstance().loadTodoItems();
         }
-        this.itemListView.setItems(TodoData.getInstance().getTodoItems());
-        this.itemListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        // Listener for itemListview
         this.itemListView.getSelectionModel().selectedItemProperty().addListener((observable, todoItem, newTodoItem) -> {
             if (newTodoItem != null) {
                 TodoItem selectedItem = itemListView.getSelectionModel().getSelectedItem();
@@ -85,6 +56,7 @@ public class Controller {
                 deadlineLabel.setText(df.format(selectedItem.getDeadLine()));
             }
         });
+        // Set behavior of each cells in itemListView
         this.itemListView.setCellFactory(new Callback<ListView<TodoItem>, ListCell<TodoItem>>() {
             @Override
             public ListCell<TodoItem> call(ListView<TodoItem> todoItemListView) {
@@ -114,22 +86,13 @@ public class Controller {
                         cell.setContextMenu(listViewContectMenu);
                     }
                 });
-
                 return cell ;
             }
         });
+        this.itemListView.setItems(TodoData.getInstance().getTodoItems());
+        this.itemListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         // Select first item bv default
         this.itemListView.getSelectionModel().selectFirst();
-//        StringBuilder sb = new StringBuilder();
-//        item = this.itemListView.getSelectionModel().getSelectedItem();
-//        sb.append(item.getDetails());
-//        sb.append("\n\n\n");
-//        sb.append("Due ").append(item.getDeadLine());
-//        this.itemDetailsTextArea.setText(sb.toString());
-
-//        item = itemListView.getSelectionModel().getSelectedItem();
-//        this.deadlineLabel.setText(item.getDeadLine().toString());
-//        this.itemDetailsTextArea.setText(item.getDetails());
     }
 
     private void deleteItem(TodoItem item) {
@@ -145,12 +108,6 @@ public class Controller {
         }
     }
 
-    //    @FXML
-//    public void handleClick() {
-//        TodoItem item = this.itemListView.getSelectionModel().getSelectedItem();;
-//        this.deadlineLabel.setText(item.getDeadLine().toString());
-//        this.itemDetailsTextArea.setText(item.getDetails());
-//    }
     @FXML
     public void showNewItemDialog() {
         Dialog<ButtonType> dialog = new Dialog<>();
@@ -175,7 +132,6 @@ public class Controller {
             System.out.println("OK clicked");
             NewItemDialogController dialogController = fxmlLoader.getController();
             TodoItem newItem = dialogController.processForm();
-//            this.itemListView.getItems().setAll(TodoData.getInstance().getTodoItems());
             this.itemListView.getSelectionModel().select(newItem);
 
         } else {
