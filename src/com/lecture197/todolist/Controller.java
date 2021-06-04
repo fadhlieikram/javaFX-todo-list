@@ -2,6 +2,7 @@ package com.lecture197.todolist;
 
 import com.lecture197.todolist.datamodel.TodoData;
 import com.lecture197.todolist.datamodel.TodoItem;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
@@ -178,6 +179,11 @@ public class Controller {
             this.itemListView.setItems(sortedList);
             this.itemListView.getSelectionModel().select(selectedItem);
         }
+    }
+
+    @FXML
+    public void handleExit() {
+        Platform.exit();
     }
 
 }
