@@ -2,6 +2,8 @@ package com.lecture197.todolist;
 
 import com.lecture197.todolist.datamodel.TodoData;
 import com.lecture197.todolist.datamodel.TodoItem;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,7 +17,9 @@ import javafx.util.Callback;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Controller {
     @FXML
@@ -28,6 +32,8 @@ public class Controller {
     private Label deadlineLabel;
     @FXML
     private ContextMenu listViewContextMenu;
+    @FXML
+    private ToggleButton filterToggleButton;
 
     // Create app data file to save list if doesn't exist
     public void initialize() throws  Exception{
@@ -146,6 +152,31 @@ public class Controller {
             if (e.getCode().equals(KeyCode.DELETE)) {
                 deleteItem(item);
             }
+        }
+    }
+
+    @FXML
+    public void handleFiltering() {
+        TodoItem selectedItem = this.itemListView.getSelectionModel().getSelectedItem();
+        if (filterToggleButton.isSelected()) {
+
+            ObservableList<TodoItem> filteredItems = this.itemListView.getItems().stream()
+                    .filter(todoItem -> LocalDate.now().isEqual(todoItem.getDeadLine()))
+                    .collect(Collectors.toCollection(FXCollections::observableArrayList));
+            this.itemListView.setItems(filteredItems);
+            if (filteredItems.isEmpty()) {
+                this.itemDetailsTextArea.clear();
+                this.deadlineLabel.setText("");
+            } else if (filteredItems.contains(selectedItem)) {
+                this.itemListView.getSelectionModel().select(selectedItem);
+            } else {
+                this.itemListView.getSelectionModel().selectFirst();
+            }
+        } else {
+            SortedList<TodoItem> sortedList = new SortedList<>(TodoData.getInstance().getTodoItems(),
+                    Comparator.comparing(TodoItem::getDeadLine));
+            this.itemListView.setItems(sortedList);
+            this.itemListView.getSelectionModel().select(selectedItem);
         }
     }
 
